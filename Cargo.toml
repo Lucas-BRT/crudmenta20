@@ -1,0 +1,11 @@
+[package]
+name = "crudmenta20"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.37.0", features = ["full"]}
+rocket = { version = "0.5.0", features = ["secrets"]}
+sqlite = "0.36.0"
