@@ -228,6 +228,8 @@ name = "crudmenta20"
 version = "0.1.0"
 dependencies = [
  "rocket",
+ "serde",
+ "serde_json",
  "sqlite",
  "tokio",
 ]
