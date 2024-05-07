@@ -10,7 +10,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(name: &str, email: &str, password: &str) -> Self {
+    pub fn new(name: String, email: String, password: String) -> Self {
         User {
             name: name.to_string(),
             email: email.to_string(),

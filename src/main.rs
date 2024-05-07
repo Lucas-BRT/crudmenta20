@@ -12,13 +12,7 @@ use server::launch_rocket;
 #[tokio::main]
 async fn main() {
     let conn = get_connection("database.db");
-    create_users_table(&conn).unwrap();
-    
-    //let user = User::new("cleitinho", "cleitonzinhosilva@_231.com", "23-0480-1-03409-fdshjk");
-
-    //insert_user(&conn, &user).unwrap();
-    
-    //get_users(&conn).unwrap();
+    create_users_table(&conn).expect("failed to create users table");
         
     launch_rocket(conn).await;
 

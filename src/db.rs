@@ -1,29 +1,31 @@
-use sqlite::{Connection, Result};
-
+use rusqlite::{Connection, Result};
 use super::users::User;
-
+use serde_json::{json, Value};
 
 pub fn insert_user(conn: &Connection, user: &User) -> Result<()> {
     let query = format!("INSERT INTO users (name, email, password) VALUES ('{}', '{}', '{}');", user.name, user.email, user.password);
-
-    println!("{}", query);
-
-    conn.execute(query).unwrap();
+    conn.execute(query.as_str(),()).unwrap();
 
     Ok(())
 }
 
-pub fn get_users(conn: &Connection) -> Result<()> {
-    let query = format!("SELECT * FROM users");
+pub fn get_users(conn: &Connection) {
+    let mut stmt = conn.prepare("SELECT * FROM users;").unwrap();
     
-    conn.iterate(query,|users| {
-        for &(name, email) in users.iter() {
-            println!("{} {:#?}", name, email);
-        }
-        true
+    let users = stmt.query_map((), |row| {
+        Ok(
+            User::new(
+                row.get(1).unwrap(),
+                row.get(2).unwrap(),
+                row.get(3).unwrap()
+            )
+        )
     }).unwrap();
-
-    Ok(())
+    
+    users.for_each(|user| {
+        println!("{:#?}", user.unwrap());
+    });
+    
 }
 
 pub fn create_users_table(conn: &Connection) -> Result<()> {
@@ -35,7 +37,7 @@ pub fn create_users_table(conn: &Connection) -> Result<()> {
         password TEXT NOT NULL
         );";
 
-    conn.execute(query)?;
+    conn.execute(query,())?;
     Ok(())
 }
 
