@@ -1,6 +1,5 @@
-use rusqlite::{Connection, Result};
-use super::users::User;
-use serde_json::{json, Value};
+use rusqlite::{params, Connection, Result};
+use crate::users::User;
 
 pub fn insert_user(conn: &Connection, user: &User) -> Result<()> {
     let query = format!("INSERT INTO users (name, email, password) VALUES ('{}', '{}', '{}');", user.name, user.email, user.password);
@@ -9,10 +8,10 @@ pub fn insert_user(conn: &Connection, user: &User) -> Result<()> {
     Ok(())
 }
 
-pub fn get_users(conn: &Connection) {
-    let mut stmt = conn.prepare("SELECT * FROM users;").unwrap();
+pub fn get_users(conn: &Connection) -> Vec<User> {
+    let mut stmt = conn.prepare_cached("SELECT * FROM users;").unwrap();
     
-    let users = stmt.query_map((), |row| {
+    let users_iter = stmt.query_map((), |row| {
         Ok(
             User::new(
                 row.get(1).unwrap(),
@@ -22,9 +21,33 @@ pub fn get_users(conn: &Connection) {
         )
     }).unwrap();
     
-    users.for_each(|user| {
-        println!("{:#?}", user.unwrap());
+    let mut users: Vec<User> = Vec::new();
+
+    users_iter.for_each(|user| {
+        users.push(user.unwrap());
     });
+    
+    users
+}
+
+pub fn get_user(conn: &Connection, email: String) -> Option<Result<User>>{
+    let mut stmt = conn.prepare_cached("SELECT * FROM users WHERE email = ?;").unwrap();
+    
+    let mut user_iter = stmt.query_map(params![email], |row| {
+        Ok(
+            User::new(
+                row.get(1).unwrap(),
+                row.get(2).unwrap(),
+                row.get(3).unwrap()
+            )
+        )
+    }).unwrap();
+    
+    if let Some(user_result) = user_iter.next() {
+        user_result.map(|user| Some(user)).transpose()
+    } else {
+        None
+    }
     
 }
 

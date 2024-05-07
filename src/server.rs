@@ -1,28 +1,32 @@
 use rocket::{fs::FileServer, futures::lock::Mutex};
-use rusqlite::Connection;
-use crate::db::get_users;
-
-use super::users::User;
 use rocket::form::Form;
-use std::sync::Arc;
 use rocket::State;
-use super::db::insert_user;
+use rusqlite::Connection;
+use crate::users::User;
+use crate::db;
+use std::sync::Arc;
+use serde_json::{json, Value};
+
 
 #[post("/submitUser", data = "<user>")]
 async fn post_user(user: Form<User>, conn_mutex: &State<Arc<Mutex<Connection>>>) {
-
+    let conn = &*conn_mutex.lock().await;
     let user = user.into_inner();   
-    insert_user(&*conn_mutex.lock().await, &user).unwrap();
+
+    db::insert_user(conn, &user).unwrap();
 }
 
 #[get("/getUsers")]
-async fn get_user(conn_mutex: &State<Arc<Mutex<Connection>>>) {
-    get_users(&*conn_mutex.lock().await);
+async fn get_users(conn_mutex: &State<Arc<Mutex<Connection>>>) -> Value {
+    json!(db::get_users(&*conn_mutex.lock().await))
 }
 
-#[delete("/deleteUser", data = "<user>")]
-async fn delete_user(user: Form<User>) {
-    
+#[get("/getUser", data = "<user>")]
+async fn get_user(user: Form<String>, conn_mutex: &State<Arc<Mutex<Connection>>>) -> Value {
+    let conn = &*conn_mutex.lock().await;
+    let user = user.into_inner();   
+
+    json!(db::get_user(conn, user).unwrap().unwrap())
 }
 
 pub async fn launch_rocket(conn: Connection) {
@@ -32,7 +36,7 @@ pub async fn launch_rocket(conn: Connection) {
     rocket::build()
         .manage(conn_mutex)
         .mount("/", FileServer::from("./public"))
-        .mount("/", routes![post_user, get_user])
+        .mount("/", routes![post_user, get_users, get_user])
         .launch()
         .await
         .expect("failed to launch rocket server.");
