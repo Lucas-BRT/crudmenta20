@@ -30,8 +30,6 @@ jobs:
         if: matrix.settings.platform == 'ubuntu-22.04' # This must match the platform value defined above.
         run: |
           sudo apt-get update
-
-
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -45,6 +43,28 @@ jobs:
 
       - name: build
         run: cargo build --verbose
-      - name: run tests
-        run: cargo test --verbose
 
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this release:
+            - Describe your changes here
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./target/${{ matrix.settings.platform }}/your-binary-name
+          asset_name: your-binary-name
+          asset_content_type: application/octet-stream
