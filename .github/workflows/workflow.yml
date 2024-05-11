@@ -42,14 +42,5 @@ jobs:
           workspaces: './src -> target'
 
       - name: build
-        run: cargo build --verbose
+        run: cargo build --release --verbose
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.run_id }}/assets
-          asset_path: ./target/${{ matrix.settings.platform }}/your-binary-name
-          asset_name: your-binary-name
-          asset_content_type: application/octet-stream
