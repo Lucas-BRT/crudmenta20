@@ -1,12 +1,11 @@
-use serde::{Deserialize, Serialize};
 use rocket::FromForm;
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, FromForm)]
 pub struct User {
     pub name: String,
     pub email: String,
-    pub password: String
+    pub password: String,
 }
 
 impl User {
@@ -14,8 +13,7 @@ impl User {
         User {
             name: name.to_string(),
             email: email.to_string(),
-            password: password.to_string()
+            password: password.to_string(),
         }
     }
 }
-
