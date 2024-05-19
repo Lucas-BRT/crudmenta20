@@ -50,26 +50,25 @@ jobs:
         with: 
           name: Build-${{ matrix.os }}
           path: |
-            dist/*.exe
-            dist/*.zip
-            dist/*.dmg
-            dist/*.deb
-            dist/*.rpm
-            dist/*.tar.gz
-            dist/*.yml
-            dist/*.blockmap
+            target/release/*.exe
+            target/release/*.zip
+            target/release/*.dmg
+            target/release/*.deb
+            target/release/*.rpm
+            target/release/*.tar.gz
+            target/release/*.yml
+            target/release/*.blockmap
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           files: |
-            dist/*.exe
-            dist/*.zip
-            dist/*.dmg
-            dist/*.deb
-            dist/*.rpm
-            dist/*.tar.gz
-            dist/*.yml
-            dist/*.blockmap
-
+            target/release/*.exe
+            target/release/*.zip
+            target/release/*.dmg
+            target/release/*.deb
+            target/release/*.rpm
+            target/release/*.tar.gz
+            target/release/*.yml
+            target/release/*.blockmap
